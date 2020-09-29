@@ -1,4 +1,5 @@
 #include "vigenere.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -27,7 +28,6 @@ int vigenere_encrypt(char *infile, char *outfile, char key[], int c_or_d)
     return 0;
 }
 
-
 int cypher(char c, char key[], int* keyindex, int c_or_d)
 {
     int cyphered_char = 0;
@@ -50,20 +50,6 @@ int cypher(char c, char key[], int* keyindex, int c_or_d)
     return cyphered_char;
 }
 
-int decypher(char c, char key[], int* keyindex)
-{
-    
-    int decyphered_char = (c - key[*keyindex]) % 256;
-    if(*keyindex == strlen(key))
-    {
-    	*keyindex = 0;
-    }
-    else
-    {
-	 *keyindex += 1;
-    }
-    return decyphered_char;
-}
 int main(int argc, char* argv[])
 {
     if(*argv[1] == 'c')
