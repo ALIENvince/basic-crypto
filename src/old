@@ -1,0 +1,15 @@
+#include "vigenere.h"
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <strings.h>
+
+int readfile(char[] infile) {
+    fd = fopen(infile, "r");
+    if(fd == NULL) { exit(1); }
+
+}
+
+int main(int argc, char* argv[]) {
+    readfile
+}
