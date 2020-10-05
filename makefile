@@ -1,5 +1,5 @@
 OPT=-g -Wall -I./include
-OBJ= obj/vigenere.o 
+OBJ= obj/vigenere.o
 
 ALL:vigenere
 
