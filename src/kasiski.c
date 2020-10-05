@@ -1,6 +1,7 @@
 #include "vigenere.h"
 
 #include <err.h>
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -37,17 +38,29 @@ void print_table(int* occ_table)
     }
 }
 
+char* vigenere_subsets(int key_length, char* cyphered_text)
+{
+    int text_length = strlen(cyphered_text);
+    for(int i = 0; i < text_length; i++)
+    {
+	if(i % key_length == 0)
+    }
+}
+
 int find_key_length(char* cyphered_text)
 {
     float IC;
     int text_length = strlen(cyphered_text);
     float frequence;
     int final_length = 0;
-    for(int key_length = 0; key_length < 10; key_length ++)
+    char* subset;
+    for(int key_length = 1; key_length < 10; key_length++)
     {
-	for(int i = 0; i < text_length; i++)
+	char** subset_array = malloc(key_length*sizeof(char*));
+	for(int i = 1; i < text_length; i++)
 	{
-	       
+	    char* subset = malloc(ceil(text_length/key_length)*sizeof(char));
+	    
 	}
     }
     return final_length;
