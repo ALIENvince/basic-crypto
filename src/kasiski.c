@@ -14,7 +14,6 @@ int* frequence(char* s)
     char c;
     int occ_table_index = 0;
     int s_length = strlen(s);
-    int key_length = 0;
     int* occ_table = malloc(256 * sizeof(int));
     if(occ_table == NULL)
     {
@@ -32,36 +31,64 @@ int* frequence(char* s)
 
 void print_table(int* occ_table)
 {
-    for(int i = 0; i < 256; i++)
-    {
-	printf("%d",occ_table[i]);
+    for(int i = 0; i < 256; i++) {
+		printf("%d",occ_table[i]);
     }
 }
 
-char* vigenere_subsets(int key_length, char* cyphered_text)
-{
-    int text_length = strlen(cyphered_text);
-    for(int i = 0; i < text_length; i++)
-    {
-	if(i % key_length == 0)
-    }
+char** subset_alloc(int key_length, int text_length) {
+	char** subset_array = malloc(key_length*sizeof(char*));
+	if(subset_array == NULL)
+		errx(EXIT_FAILURE, "malloc error in subset_alloc");
+	for(int i = 0; i < key_length; i++)
+	{
+	    char* subset = malloc(ceil(text_length/key_length)*sizeof(char));
+		if(subset == NULL)
+			errx(EXIT_FAILURE, "malloc error in subset_alloc");
+		subset_array[i] = subset;
+	}
+	return subset_array;
+}
+
+void subset_free(char** subset_array, int size) {
+	for(int i = 0; i < size; i++) {
+		free(subset_array[i]);
+	}
+	free(subset_array);
+}
+
+float* ics_alloc(int size) {
+	float* array = malloc(size * sizeof(float));
+	if(array == NULL)
+		errx(EXIT_FAILURE, "malloc error in ics_alloc");
+	return array;
 }
 
 int find_key_length(char* cyphered_text)
 {
-    float IC;
+	//float average_table[10];
     int text_length = strlen(cyphered_text);
-    float frequence;
     int final_length = 0;
-    char* subset;
     for(int key_length = 1; key_length < 10; key_length++)
     {
-	char** subset_array = malloc(key_length*sizeof(char*));
-	for(int i = 1; i < text_length; i++)
-	{
-	    char* subset = malloc(ceil(text_length/key_length)*sizeof(char));
-	    
-	}
+		//alloc array
+		char** subset_array = subset_alloc(key_length, text_length);
+
+		//init values
+		int r;
+		int c;
+		for(int i = 0; i < text_length ; i++) {
+			r = i % key_length;
+			c = i / key_length;
+			subset_array[r][c] = cyphered_text[i];
+		}
+		//calculate IC for each subset
+		//
+		//calculate average IC
+		//put this IC in array
+		//
+		//free subset_array
+		subset_free(subset_array, key_length);
     }
     return final_length;
 }
