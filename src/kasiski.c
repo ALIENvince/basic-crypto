@@ -7,33 +7,32 @@
 #include <string.h>
 #include <unistd.h>
 
-
-
 int* frequence(char* s)
 {
-    char c;
-    int occ_table_index = 0;
-    int s_length = strlen(s);
-    int* occ_table = malloc(256 * sizeof(int));
-    if(occ_table == NULL)
-    {
-	errx(EXIT_FAILURE, "can't allocate size for occ_table");
-    }
-    for(int i = 0; i < 256; i++){ occ_table[i] = 0;}
-    for(int j = 0; j < s_length; j++)
-    {
-	    c = s[j];
-	    occ_table_index = (int)c;
-	    occ_table[occ_table_index]++;
-    }
-    return occ_table;
+	char c;
+	int occ_table_index = 0;
+	int s_length = strlen(s);
+	int* occ_table = malloc(256 * sizeof(int));
+	if(occ_table == NULL)
+	{
+		errx(EXIT_FAILURE, "can't allocate size for occ_table");
+	}
+	for(int i = 0; i < 256; i++){ occ_table[i] = 0;}
+	for(int j = 0; j < s_length; j++)
+	{
+		c = s[j];
+		occ_table_index = (int)c;
+		occ_table[occ_table_index]++;
+	}
+	return occ_table;
 }
 
 void print_table(int* occ_table)
 {
-    for(int i = 0; i < 256; i++) {
-		printf("%d",occ_table[i]);
-    }
+	for(int i = 0; i < 256; i++) {
+		if(occ_table[i] != 0)
+			printf("char: %c -> %d\n", i,occ_table[i]);
+	}
 }
 
 char** subset_alloc(int key_length, int text_length) {
@@ -42,7 +41,7 @@ char** subset_alloc(int key_length, int text_length) {
 		errx(EXIT_FAILURE, "malloc error in subset_alloc");
 	for(int i = 0; i < key_length; i++)
 	{
-	    char* subset = malloc(ceil(text_length/key_length)*sizeof(char));
+		char* subset = malloc(ceil(text_length/key_length)*sizeof(char));
 		if(subset == NULL)
 			errx(EXIT_FAILURE, "malloc error in subset_alloc");
 		subset_array[i] = subset;
@@ -66,11 +65,13 @@ float* ics_alloc(int size) {
 
 int find_key_length(char* cyphered_text)
 {
-	//float average_table[10];
-    int text_length = strlen(cyphered_text);
-    int final_length = 0;
-    for(int key_length = 1; key_length < 10; key_length++)
-    {
+	float average_table[10];
+	float average_IC;
+	float IC;
+	int text_length = strlen(cyphered_text);
+	int final_length = 0;
+	for(int key_length = 1; key_length < 10; key_length++)
+	{
 		//alloc array
 		char** subset_array = subset_alloc(key_length, text_length);
 
@@ -89,19 +90,15 @@ int find_key_length(char* cyphered_text)
 		//
 		//free subset_array
 		subset_free(subset_array, key_length);
-    }
-    return final_length;
+	}
+	return final_length;
 }
 
 int main(int argc, char* argv[])
 {
-    char* string_test = "coucou";
-    if(*argv[1] == 'o')
-    {
+	char* string_test = "coucou";
 	int* occ_table;
 	occ_table = frequence(string_test);
 	print_table(occ_table);
 	free(occ_table);
-    }
-
 }
