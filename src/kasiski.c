@@ -2,6 +2,7 @@
 
 #include <err.h>
 #include <math.h>
+#include <sys/stat.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -85,12 +86,8 @@ int ICM_offset(char* s1, char* s2)
 			ICM_max = ICM;
 			shift_max = shift;
 		}
-		printf("valeur actuelle de shift : %d  ", shift);
-		printf("valuer actuelle de l'iCM : %.2f\n", ICM);
 		ICM = 0;
 	}
-	//printf("la valeur finale de shift est : %d ", shift_max);
-	printf("la valeur finale de l'ICM est : %.2f\n", ICM_max);
 	return shift_max;
 }
 
@@ -128,6 +125,19 @@ void print_subsets(char **array, int rows, int columns) {
 int max_array(float* array, int size) {
 	float max = array[0];
 	int index = 0;
+	for(int i = 0; i < size; i++) {
+		if(max < array[i]) {
+			max = array[i];
+			index = i;
+		}
+	}
+	return index;
+}
+
+int max_frequency(int* array) {
+	int max = array[0];
+	int index = 0;
+	int size = 256;
 	for(int i = 0; i < size; i++) {
 		if(max < array[i]) {
 			max = array[i];
@@ -192,10 +202,89 @@ int find_key_length(char* cyphered_text) {
 	return final_length;
 }
 
+void shift_subset(char* s, int offset, int subset_len)
+{
+	for(int i = 0; i < subset_len; i++) {
+		s[i] = s[(i + offset) % 256];
+	}
+}
+
+void shift_all_subset(int keylen, char** subset_table)
+{
+	int offset;
+	int subset_length;
+	for(int i = 0; i < keylen; i++)
+	{
+		subset_length = strlen(subset_table[i]);
+		offset = ICM_offset(subset_table[0], subset_table[i]);  
+		shift_subset(subset_table[i], offset, subset_length);
+	}
+}
+
+char **build_sub_array(int key_length, int text_length, char* ciphered_text) {
+	int rows = key_length;
+	int columns = ceil(text_length/key_length)+1;
+	char** subset_array = subset_alloc(rows, columns);
+
+	//init values
+	int r;
+	int c;
+	for(int i = 0; i < text_length ; i++) {
+		r = i % key_length;
+		c = i / key_length;
+		subset_array[r][c] = ciphered_text[i];
+	}
+	return subset_array;
+}
+
+char* recompose_string(char **sub_array, int text_length, int key_length) {
+	char* res = calloc(text_length+1, sizeof(char));
+	int r;
+	int c;
+	for(int i = 0; i < text_length ; i++) {
+		r = i % key_length;
+		c = i / key_length;
+		res[i] = sub_array[r][c];
+	}
+	return res;
+}
+
 int main(int argc, char* argv[]) {
-	char* string_test = "coucou c'est nous on est la tavu, toujours debout!";
-	int keylen = find_key_length(string_test);
+	FILE* fd = fopen("test.txt", "r");
+	char c;
+	size_t size = 0;
+	struct stat st;
+	if(stat("test.txt",&st)==0)
+		 size = st.st_size;
+
+	char* str = malloc(size);
+
+	int ind = 0;
+	while((c=fgetc(fd)) != EOF) {
+		str[ind] = c;
+		ind++;
+	}
+
+	int keylen = find_key_length(str);
+	int textlen = strlen(str);
 	printf("Most probable key length: %d\n", keylen);
 
+	char** sub_array = build_sub_array(keylen, textlen, str);
+	shift_all_subset(keylen, sub_array);
+
+	char* string_res = recompose_string(sub_array, textlen, keylen);
+	int* occ_table = frequence(string_res);
+
+	int max_occ = max_frequency(occ_table);
+
+	shift_subset(string_res, -max_occ, textlen);
+	printf("\nMost probable result: %s\n", string_res);
+
+	/*
+	for(int i=0; i<256; i++) {
+		shift_subset(string_res, i, textlen);
+		printf("possible result: %s",string_res);
+	}*/
+	//TODO NE PAS OUBLIER DE TOUT FREE !
 	return 0;
 }
