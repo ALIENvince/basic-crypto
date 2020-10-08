@@ -53,6 +53,47 @@ float ic(char* subset, int subsize) {
 	return sum/(subsize*(subsize-1));
 }
 
+int mutual_IC(char* s1, char* s2, int shift)
+{
+	int* f1 = frequence(s1);
+	int* f2 = frequence(s2);
+	int s1_length = strlen(s1);
+	int s2_length = strlen(s2);
+	float mutual_freq;
+	float ICM;
+	for(int i = 0; i < 256; i++)
+	{
+		if(f1[i] != 0 && f2[(i+shift) % 256] != 0)
+		{
+			mutual_freq += f1[i]*f2[(i+shift) % 256];
+		}
+	}
+	ICM = mutual_freq/(s1_length*s2_length);
+	return ICM;
+}
+
+int ICM_offset(char* s1, char* s2)
+{
+	int shift_max;
+	float ICM;
+	float ICM_max = 0;
+	for(int shift = 0; shift < 256; shift++)
+	{
+		ICM = mutual_IC(s1,s2,shift);
+		if(ICM > ICM_max)
+		{
+			ICM_max = ICM;
+			shift_max = shift;
+		}
+		printf("valeur actuelle de shift : %d  ", shift);
+		printf("valuer actuelle de l'iCM : %.2f\n", ICM);
+		ICM = 0;
+	}
+	//printf("la valeur finale de shift est : %d ", shift_max);
+	printf("la valeur finale de l'ICM est : %.2f\n", ICM_max);
+	return shift_max;
+}
+
 char** subset_alloc(int rows, int columns) {
 	char** subset_array = malloc(rows*sizeof(char*));
 
@@ -147,7 +188,7 @@ int find_key_length(char* cyphered_text) {
 	}
 	//TODO find maximum in average_table
 	for(int i=0; i<10;i++)
-	final_length = max_array(average_table, 10)+1;
+		final_length = max_array(average_table, 10)+1;
 	return final_length;
 }
 
