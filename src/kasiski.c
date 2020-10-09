@@ -225,7 +225,7 @@ char* build_offset_table(int keylen, int textlen, char** subset_table)
 	char* offset_table = malloc(keylen*sizeof(char));
 	for(int i = 0; i < keylen; i++)
 	{
-		offset = ICM_offset(subset_table[0],get_subset_size(keylen, textlen, 0), subset_table[i], get_subset_size(keylen, textlen, 0));  
+		offset = ICM_offset(subset_table[0],get_subset_size(keylen, textlen, 0), subset_table[i], get_subset_size(keylen, textlen, i));  
 		offset_table[i] = offset;
 	}
 	printf("building offset: ");
