@@ -122,11 +122,9 @@ void subset_free(char** subset_array, int size) {
 	free(subset_array);
 }
 
-void print_subsets(char **array, int rows, int columns) {
-	for(int i = 0; i < rows; i++) {
-		for(int j = 0; j < columns; j++) {
-			printf("%c",array[i][j]);
-		}
+void print_subsets(char **array, int keylen) {
+	for(int i = 0; i < keylen; i++) {
+		printf("%s", array[i]);
 		printf("\n");
 	}
 }
@@ -294,6 +292,7 @@ int main(int argc, char* argv[]) {
 	printf("Most probable key length: %d\n", keylen);
 
 	char** sub_array = build_sub_array(keylen, textlen, str);
+	print_subsets(sub_array,keylen);
 
 	char* offtable = build_offset_table(keylen, textlen, sub_array);
 
