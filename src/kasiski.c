@@ -276,7 +276,7 @@ int main(int argc, char* argv[]) {
 		errx(EXIT_FAILURE, "malloc error");
 
 
-	printf("before rewind", keylen);
+	printf("before rewind");
 	rewind(fd);
 	ind = 0;
 	while((c=fgetc(fd)) != EOF) {
