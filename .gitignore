@@ -3,4 +3,7 @@ obj/*
 vigenere
 kasiski
 vgcore*
+infile
+cipher
+outfile
 

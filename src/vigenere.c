@@ -7,6 +7,27 @@
 #include <unistd.h>
 
 
+int cypher(char c, char key[], int* keyindex, int c_or_d)
+{
+    int cyphered_char = 0;
+    if(c_or_d == 0)
+    {
+	cyphered_char = (c + key[*keyindex]) % 256;
+    }
+    else
+    {
+	cyphered_char = (c - key[*keyindex]) % 256;
+    }
+    if(*keyindex == strlen(key))
+    {
+    	*keyindex = 0;
+    }
+    else
+    {
+	 *keyindex += 1;
+    }
+    return cyphered_char;
+}
 
 int vigenere_encrypt(char *infile, char *outfile, char key[], int c_or_d)
 {
@@ -29,27 +50,6 @@ int vigenere_encrypt(char *infile, char *outfile, char key[], int c_or_d)
     return 0;
 }
 
-int cypher(char c, char key[], int* keyindex, int c_or_d)
-{
-    int cyphered_char = 0;
-    if(c_or_d == 0)
-    {
-	cyphered_char = (c + key[*keyindex]) % 256;
-    }
-    else
-    {
-	cyphered_char = (c - key[*keyindex]) % 256;
-    }
-    if(*keyindex == strlen(key))
-    {
-    	*keyindex = 0;
-    }
-    else
-    {
-	 *keyindex += 1;
-    }
-    return cyphered_char;
-}
 int* frequence(char* s)
 {
     char c;

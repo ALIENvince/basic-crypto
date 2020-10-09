@@ -1,6 +1,6 @@
 OPT=-g -Wall -I./include
 
-ALL:kasiski #vigenere 
+ALL:kasiski vigenere 
 
 %: obj/%.o 
 	$(CC) -o $@ $^
@@ -10,5 +10,5 @@ obj/%.o: src/%.c include/%.h
 
 clean:
 	rm -rf obj/*.o
-	#rm ./vigenere
+	rm ./vigenere
 	rm ./kasiski
