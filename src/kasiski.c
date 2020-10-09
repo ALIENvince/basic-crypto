@@ -262,6 +262,7 @@ char* recompose_string(char **sub_array, int text_length, int key_length) {
 }
 
 int main(int argc, char* argv[]) {
+	//opening file from argument
 	char* path = argv[0];
 	printf("path: %s\n", path);
 	FILE* fd = fopen(path, "r");
@@ -270,16 +271,19 @@ int main(int argc, char* argv[]) {
 	char c;
 
 
+	//calculating string size since we cannot rely on strlen due to \0
 	int ind = 0;
 	while((c=fgetc(fd)) != EOF) {
 		ind++;
 	}
 
+	//Allocating memory for ciphertext
 	char* str = malloc(ind*sizeof(char));
 	if(str==NULL)
 		errx(EXIT_FAILURE, "malloc error");
 
 
+	//Initializing ciphertext
 	rewind(fd);
 	ind = 0;
 	while((c=fgetc(fd)) != EOF) {
@@ -287,16 +291,20 @@ int main(int argc, char* argv[]) {
 		ind++;
 	}
 
+	//finding key length
 	int keylen = find_key_length(str, ind);
 	int textlen = ind;
 	printf("Most probable key length: %d\n", keylen);
 
+	//building the substrings array
 	char** sub_array = build_sub_array(keylen, textlen, str);
 
+	//building the table of offsets
 	char* offtable = build_offset_table(keylen, textlen, sub_array);
 
 	print_possible_keys(offtable, keylen);
 
+	free(str);
 	subset_free(sub_array, keylen);
 	return 0;
 }
