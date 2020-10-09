@@ -262,7 +262,7 @@ char* recompose_string(char **sub_array, int text_length, int key_length) {
 }
 
 int main(int argc, char* argv[]) {
-	char* path = argv[1];
+	char* path = argv[0];
 	printf("path: %s\n", path);
 	FILE* fd = fopen(path, "r");
 	if(fd == NULL)
