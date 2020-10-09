@@ -8,8 +8,8 @@
 #include <string.h>
 #include <unistd.h>
 
-int* frequence(char* s) {
-	char c;
+int* frequence(unsigned char* s) {
+	unsigned char c;
 	int occ_table_index = 0;
 	int s_length = strlen(s);
 	int* occ_table = malloc(256 * sizeof(int));
@@ -41,7 +41,7 @@ float* ics_alloc(int size) {
 	return array;
 }
 
-float ic(char* subset, int subsize) {
+float ic(unsigned char* subset, int subsize) {
 	int* freq_table = frequence(subset);
 	float sum = 0;
 	int tmp;
@@ -54,7 +54,7 @@ float ic(char* subset, int subsize) {
 	return sum/(subsize*(subsize-1));
 }
 
-int mutual_IC(char* s1, char* s2, int shift)
+int mutual_IC(unsigned char* s1, unsigned char* s2, int shift)
 {
 	int* f1 = frequence(s1);
 	int* f2 = frequence(s2);
@@ -73,7 +73,7 @@ int mutual_IC(char* s1, char* s2, int shift)
 	return ICM;
 }
 
-int ICM_offset(char* s1, char* s2)
+int ICM_offset(unsigned char* s1, unsigned char* s2)
 {
 	int shift_max;
 	float ICM;
@@ -91,14 +91,14 @@ int ICM_offset(char* s1, char* s2)
 	return shift_max;
 }
 
-char** subset_alloc(int rows, int columns) {
-	char** subset_array = malloc(rows*sizeof(char*));
+unsigned char** subset_alloc(int rows, int columns) {
+	unsigned char** subset_array = malloc(rows*sizeof(unsigned char*));
 
 	if(subset_array == NULL)
 		errx(EXIT_FAILURE, "malloc error in subset_alloc");
 
 	for(int i = 0; i < rows; i++) {
-		char* subset = calloc(columns, sizeof(char));
+		unsigned char* subset = calloc(columns, sizeof(unsigned char));
 		if(subset == NULL)
 			errx(EXIT_FAILURE, "malloc error in subset_alloc");
 		subset_array[i] = subset;
@@ -106,14 +106,14 @@ char** subset_alloc(int rows, int columns) {
 	return subset_array;
 }
 
-void subset_free(char** subset_array, int size) {
+void subset_free(unsigned char** subset_array, int size) {
 	for(int i = 0; i < size; i++) {
 		free(subset_array[i]);
 	}
 	free(subset_array);
 }
 
-void print_subsets(char **array, int rows, int columns) {
+void print_subsets(unsigned char **array, int rows, int columns) {
 	for(int i = 0; i < rows; i++) {
 		for(int j = 0; j < columns; j++) {
 			printf("%c",array[i][j]);
@@ -147,13 +147,13 @@ int max_frequency(int* array) {
 	return index;
 }
 
-int find_key_length(char* cyphered_text) {
+int find_key_length(unsigned char* cyphered_text) {
 	float average_table[10];
 	float average_IC;
 	float IC;
 	int text_length = strlen(cyphered_text);
 	int final_length = 0;
-	char** subset_array;
+	unsigned char** subset_array;
 	int rows;
 	int columns;
 
@@ -196,20 +196,19 @@ int find_key_length(char* cyphered_text) {
 		//free subset_array
 		subset_free(subset_array, key_length);
 	}
-	//TODO find maximum in average_table
 	for(int i=0; i<10;i++)
 		final_length = max_array(average_table, 10)+1;
 	return final_length;
 }
 
-void shift_subset(char* s, int offset, int subset_len)
+void shift_subset(unsigned char* s, int offset, int subset_len)
 {
 	for(int i = 0; i < subset_len; i++) {
 		s[i] = s[(i + offset) % 256];
 	}
 }
 
-void shift_all_subset(int keylen, char** subset_table)
+void shift_all_subset(int keylen, unsigned char** subset_table)
 {
 	int offset;
 	int subset_length;
@@ -221,10 +220,10 @@ void shift_all_subset(int keylen, char** subset_table)
 	}
 }
 
-char **build_sub_array(int key_length, int text_length, char* ciphered_text) {
+unsigned char **build_sub_array(int key_length, int text_length, unsigned char* ciphered_text) {
 	int rows = key_length;
 	int columns = ceil(text_length/key_length)+1;
-	char** subset_array = subset_alloc(rows, columns);
+	unsigned char** subset_array = subset_alloc(rows, columns);
 
 	//init values
 	int r;
@@ -237,8 +236,8 @@ char **build_sub_array(int key_length, int text_length, char* ciphered_text) {
 	return subset_array;
 }
 
-char* recompose_string(char **sub_array, int text_length, int key_length) {
-	char* res = calloc(text_length+1, sizeof(char));
+unsigned char* recompose_string(unsigned char **sub_array, int text_length, int key_length) {
+	unsigned char* res = calloc(text_length+1, sizeof(unsigned char));
 	int r;
 	int c;
 	for(int i = 0; i < text_length ; i++) {
@@ -251,13 +250,13 @@ char* recompose_string(char **sub_array, int text_length, int key_length) {
 
 int main(int argc, char* argv[]) {
 	FILE* fd = fopen("test.txt", "r");
-	char c;
+	unsigned char c;
 	size_t size = 0;
 	struct stat st;
 	if(stat("test.txt",&st)==0)
 		 size = st.st_size;
 
-	char* str = malloc(size);
+	unsigned char* str = malloc(size);
 
 	int ind = 0;
 	while((c=fgetc(fd)) != EOF) {
@@ -269,22 +268,14 @@ int main(int argc, char* argv[]) {
 	int textlen = strlen(str);
 	printf("Most probable key length: %d\n", keylen);
 
-	char** sub_array = build_sub_array(keylen, textlen, str);
+	unsigned char** sub_array = build_sub_array(keylen, textlen, str);
 	shift_all_subset(keylen, sub_array);
 
-	char* string_res = recompose_string(sub_array, textlen, keylen);
+	unsigned char* string_res = recompose_string(sub_array, textlen, keylen);
 	int* occ_table = frequence(string_res);
 
 	int max_occ = max_frequency(occ_table);
 
-	shift_subset(string_res, -max_occ, textlen);
-	printf("\nMost probable result: %s\n", string_res);
-
-	/*
-	for(int i=0; i<256; i++) {
-		shift_subset(string_res, i, textlen);
-		printf("possible result: %s",string_res);
-	}*/
-	//TODO NE PAS OUBLIER DE TOUT FREE !
+	subset_free(sub_array, keylen);
 	return 0;
 }
