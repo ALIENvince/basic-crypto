@@ -292,7 +292,6 @@ int main(int argc, char* argv[]) {
 	printf("Most probable key length: %d\n", keylen);
 
 	char** sub_array = build_sub_array(keylen, textlen, str);
-	print_subsets(sub_array,keylen);
 
 	char* offtable = build_offset_table(keylen, textlen, sub_array);
 
