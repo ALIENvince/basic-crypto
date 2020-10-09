@@ -201,23 +201,31 @@ int find_key_length(unsigned char* cyphered_text) {
 	return final_length;
 }
 
-void shift_subset(unsigned char* s, int offset, int subset_len)
+void print_possible_keys(unsigned char* offset_table)
 {
-	for(int i = 0; i < subset_len; i++) {
-		s[i] = s[(i + offset) % 256];
+    char key_char;
+    for(int i = 0; i < 255; i++)
+    {
+	for(int j = 0; j < table_length -1; j++)
+	{
+	    key_char = (offset_table[j] + i) % 256;
+	    printf("%c", key_char);
 	}
+	printf("\n");
+    }	    
 }
 
-void shift_all_subset(int keylen, unsigned char** subset_table)
+unsigned char* build_offset_table(int keylen, char** subset_table)
 {
 	int offset;
 	int subset_length;
+	unsigned char* offset_table = malloc(keylen*sizeof(unsigned char));
 	for(int i = 0; i < keylen; i++)
 	{
-		subset_length = strlen(subset_table[i]);
 		offset = ICM_offset(subset_table[0], subset_table[i]);  
-		shift_subset(subset_table[i], offset, subset_length);
+		offset_table[i] = offset;
 	}
+	return offset_table;
 }
 
 unsigned char **build_sub_array(int key_length, int text_length, unsigned char* ciphered_text) {
