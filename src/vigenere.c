@@ -6,25 +6,20 @@
 #include <string.h>
 #include <unistd.h>
 
-
 int cypher(char c, char key[], int* keyindex, int c_or_d)
 {
     int cyphered_char = 0;
-    if(c_or_d == 0)
-    {
+    if(c_or_d == 0) {
 	cyphered_char = (c + key[*keyindex]) % 256;
     }
-    else
-    {
+    else {
 	cyphered_char = (c - key[*keyindex]) % 256;
     }
-    if(*keyindex == strlen(key))
-    {
-    	*keyindex = 0;
+    if(*keyindex == strlen(key)) {
+	*keyindex = 0;
     }
-    else
-    {
-	 *keyindex += 1;
+    else {
+	*keyindex += 1;
     }
     return cyphered_char;
 }
@@ -36,7 +31,7 @@ int vigenere_encrypt(char *infile, char *outfile, char key[], int c_or_d)
     int cypher_value = 0;
     FILE* fdin = fopen(infile, "r");
     FILE* fdout = fopen(outfile, "w");
-    if(fdin == NULL){ exit(EXIT_FAILURE);}
+    if(fdin == NULL || fdout == NULL){ exit(EXIT_FAILURE);}
     char_value = fgetc(fdin);
     while( char_value != EOF )
     {
@@ -48,43 +43,6 @@ int vigenere_encrypt(char *infile, char *outfile, char key[], int c_or_d)
     fclose(fdin);
     fclose(fdout);
     return 0;
-}
-
-int* frequence(char* s)
-{
-    char c;
-    int occ_table_index = 0;
-    int s_length = strlen(s);
-    int key_length = 0;
-    int* occ_table = malloc(256 * sizeof(int));
-    if(occ_table == NULL)
-    {
-	errx(EXIT_FAILURE, "can't allocate size for occ_table");
-    }
-    for(int i = 0; i < 256; i++){ occ_table[i] = 0;}
-    for(int j = 0; j < s_length; j++)
-    {
-	    c = s[j];
-	    occ_table_index = (int)c;
-	    occ_table[occ_table_index]++;
-    }
-    return occ_table;
-}
-
-int find_key_length(char* cyphered_text)
-{
-    float IC;
-    int text_length = strlen(cyphered_text);
-    float frequence;
-    int final_length = 0;
-    for(int key_length = 0; key_length < 10; key_length ++)
-    {
-	for(int i = 0; i < text_length; i++)
-	{
-	       
-	}
-    }
-    return final_length;
 }
 
 int main(int argc, char* argv[])
@@ -104,10 +62,4 @@ int main(int argc, char* argv[])
 	printf("Wrong usage of vigenere.");
     }
 
-    if(*argv[1] == 'o')
-    {
-	int* occ_table;
-	occ_table = frequence(string_test);
-	free(occ_table);
-    }
 }

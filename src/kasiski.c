@@ -6,8 +6,8 @@
 #include <string.h>
 #include <unistd.h>
 
-int* frequence(unsigned char* s, int size) {
-	unsigned char c;
+int* frequence(char* s, int size) {
+	char c;
 	int occ_table_index = 0;
 	int* occ_table = malloc(256 * sizeof(int));
 	if(occ_table == NULL)
@@ -38,7 +38,7 @@ float* ics_alloc(int size) {
 	return array;
 }
 
-float ic(unsigned char* subset, int subsize) {
+float ic(char* subset, int subsize) {
 	int* freq_table = frequence(subset, subsize);
 	float sum = 0;
 	int tmp;
@@ -51,7 +51,7 @@ float ic(unsigned char* subset, int subsize) {
 	return sum/(subsize*(subsize-1));
 }
 
-int mutual_IC(unsigned char* s1,int s1_length, unsigned char* s2, int s2_length, int shift)
+int mutual_IC(char* s1,int s1_length, char* s2, int s2_length, int shift)
 {
 	int* f1 = frequence(s1, s1_length);
 	int* f2 = frequence(s2, s2_length);
@@ -68,7 +68,7 @@ int mutual_IC(unsigned char* s1,int s1_length, unsigned char* s2, int s2_length,
 	return ICM;
 }
 
-int ICM_offset(unsigned char* s1,int s1_len, unsigned char* s2, int s2_len)
+int ICM_offset(char* s1,int s1_len, char* s2, int s2_len)
 {
 	int shift_max;
 	float ICM;
@@ -100,14 +100,14 @@ int get_subset_size(int keylen, int textlen, int row) {
 	return i;
 }
 
-unsigned char** subset_alloc(int keylen, int textlen) {
-	unsigned char** subset_array = malloc(keylen*sizeof(unsigned char*));
+char** subset_alloc(int keylen, int textlen) {
+	char** subset_array = malloc(keylen*sizeof(char*));
 
 	if(subset_array == NULL)
 		errx(EXIT_FAILURE, "malloc error in subset_alloc");
 
 	for(int i = 0; i < keylen; i++) {
-		unsigned char* subset = calloc(get_subset_size(keylen,textlen, i), sizeof(unsigned char));
+		char* subset = calloc(get_subset_size(keylen,textlen, i), sizeof(char));
 		if(subset == NULL)
 			errx(EXIT_FAILURE, "malloc error in subset_alloc");
 		subset_array[i] = subset;
@@ -115,14 +115,14 @@ unsigned char** subset_alloc(int keylen, int textlen) {
 	return subset_array;
 }
 
-void subset_free(unsigned char** subset_array, int size) {
+void subset_free(char** subset_array, int size) {
 	for(int i = 0; i < size; i++) {
 		free(subset_array[i]);
 	}
 	free(subset_array);
 }
 
-void print_subsets(unsigned char **array, int rows, int columns) {
+void print_subsets(char **array, int rows, int columns) {
 	for(int i = 0; i < rows; i++) {
 		for(int j = 0; j < columns; j++) {
 			printf("%c",array[i][j]);
@@ -156,12 +156,12 @@ int max_frequency(int* array) {
 	return index;
 }
 
-int find_key_length(unsigned char* cyphered_text, int text_length) {
+int find_key_length(char* cyphered_text, int text_length) {
 	float average_table[10];
 	float average_IC;
 	float IC;
 	int final_length = 0;
-	unsigned char** subset_array;
+	char** subset_array;
 
 	for(int key_length = 1; key_length <= 10; key_length++)
 	{
@@ -205,7 +205,7 @@ int find_key_length(unsigned char* cyphered_text, int text_length) {
 	return final_length;
 }
 
-void print_possible_keys(unsigned char* offset_table, int keylen)
+void print_possible_keys(char* offset_table, int keylen)
 {
 	char key_char;
 	for(int i = 0; i < 255; i++)
@@ -219,21 +219,26 @@ void print_possible_keys(unsigned char* offset_table, int keylen)
 	}	    
 }
 
-unsigned char* build_offset_table(int keylen, int textlen, char** subset_table)
+char* build_offset_table(int keylen, int textlen, char** subset_table)
 {
 	int offset;
-	unsigned char* offset_table = malloc(keylen*sizeof(unsigned char));
+	char* offset_table = malloc(keylen*sizeof(char));
 	for(int i = 0; i < keylen; i++)
 	{
 		offset = ICM_offset(subset_table[0],get_subset_size(keylen, textlen, 0), subset_table[i], get_subset_size(keylen, textlen, 0));  
 		offset_table[i] = offset;
 	}
+	printf("building offset: ");
+	for(int i = 0; i < keylen; i++) {
+		printf("%d", offset_table[i]);
+	}
+	printf("\n");
 	return offset_table;
 }
 
 
-unsigned char **build_sub_array(int key_length, int text_length, unsigned char* ciphered_text) {
-	unsigned char** subset_array = subset_alloc(key_length, text_length);
+char **build_sub_array(int key_length, int text_length, char* ciphered_text) {
+	char** subset_array = subset_alloc(key_length, text_length);
 
 	//init values
 	int r;
@@ -246,8 +251,8 @@ unsigned char **build_sub_array(int key_length, int text_length, unsigned char* 
 	return subset_array;
 }
 
-unsigned char* recompose_string(unsigned char **sub_array, int text_length, int key_length) {
-	unsigned char* res = calloc(text_length+1, sizeof(unsigned char));
+char* recompose_string(char **sub_array, int text_length, int key_length) {
+	char* res = calloc(text_length+1, sizeof(char));
 	int r;
 	int c;
 	for(int i = 0; i < text_length ; i++) {
@@ -260,10 +265,11 @@ unsigned char* recompose_string(unsigned char **sub_array, int text_length, int 
 
 int main(int argc, char* argv[]) {
 	char* path = argv[1];
+	printf("path: %s\n", path);
 	FILE* fd = fopen(path, "r");
 	if(fd == NULL)
 		err(EXIT_FAILURE, "fopen:");
-	unsigned char c;
+	char c;
 
 
 	int ind = 0;
@@ -271,16 +277,15 @@ int main(int argc, char* argv[]) {
 		ind++;
 	}
 
-	unsigned char* str = malloc(ind*sizeof(char));
+	char* str = malloc(ind*sizeof(char));
 	if(str==NULL)
 		errx(EXIT_FAILURE, "malloc error");
 
 
-	printf("before rewind");
 	rewind(fd);
 	ind = 0;
 	while((c=fgetc(fd)) != EOF) {
-		str[ind] = (unsigned char)c;
+		str[ind] = (char)c;
 		ind++;
 	}
 
@@ -288,7 +293,11 @@ int main(int argc, char* argv[]) {
 	int textlen = ind;
 	printf("Most probable key length: %d\n", keylen);
 
-	unsigned char** sub_array = build_sub_array(keylen, textlen, str);
+	char** sub_array = build_sub_array(keylen, textlen, str);
+
+	char* offtable = build_offset_table(keylen, textlen, sub_array);
+
+	print_possible_keys(offtable, keylen);
 
 	subset_free(sub_array, keylen);
 	return 0;
