@@ -2,10 +2,10 @@ OPT=-g -Wall -I./include
 
 ALL:kasiski vigenere 
 
-%: obj/%.o 
+%: %.o 
 	$(CC) -o $@ $^
 
-obj/%.o: src/%.c include/%.h
+%.o: src/%.c
 	$(CC) -o $@ -c $< $(OPT)
 
 clean:

@@ -6,6 +6,7 @@
 #include <string.h>
 #include <unistd.h>
 
+/* func to get the frequence table of the string */
 int* frequence(char* s, int size) {
 	char c;
 	int occ_table_index = 0;
@@ -37,7 +38,7 @@ float* ics_alloc(int size) {
 		errx(EXIT_FAILURE, "malloc error in ics_alloc");
 	return array;
 }
-
+/* calculate the index of coincidence of a subset */
 float ic(char* subset, int subsize) {
 	int* freq_table = frequence(subset, subsize);
 	float sum = 0;
@@ -46,11 +47,10 @@ float ic(char* subset, int subsize) {
 		tmp = freq_table[i];
 		sum += (tmp *(tmp-1));
 	}
-	//print_table(freq_table);
 	free(freq_table);
 	return sum/(subsize*(subsize-1));
 }
-
+/* calculate the mutual index of coincidence between 2 subsets */
 int mutual_IC(char* s1,int s1_length, char* s2, int s2_length, int shift)
 {
 	int* f1 = frequence(s1, s1_length);
@@ -67,7 +67,7 @@ int mutual_IC(char* s1,int s1_length, char* s2, int s2_length, int shift)
 	ICM = mutual_freq/(s1_length*s2_length);
 	return ICM;
 }
-
+/* calculate the offset of the highest ICM for the shifted string */
 int ICM_offset(char* s1,int s1_len, char* s2, int s2_len)
 {
 	int shift_max;
@@ -85,7 +85,7 @@ int ICM_offset(char* s1,int s1_len, char* s2, int s2_len)
 	}
 	return shift_max;
 }
-
+/* return the size of the subset at the index 'row' in the array */
 int get_subset_size(int keylen, int textlen, int row) {
 	int tmp = textlen;
 	int i = 0;
@@ -121,14 +121,14 @@ void subset_free(char** subset_array, int size) {
 	}
 	free(subset_array);
 }
-
+/* print the elements of the subset table */
 void print_subsets(char **array, int keylen) {
 	for(int i = 0; i < keylen; i++) {
 		printf("%s", array[i]);
 		printf("\n");
 	}
 }
-
+/* return the index of the highest value in the float array */
 int max_array(float* array, int size) {
 	float max = array[0];
 	int index = 0;
@@ -140,7 +140,7 @@ int max_array(float* array, int size) {
 	}
 	return index;
 }
-
+/* return the index of the highest frequency of the frequence table */
 int max_frequency(int* array) {
 	int max = array[0];
 	int index = 0;
@@ -153,7 +153,7 @@ int max_frequency(int* array) {
 	}
 	return index;
 }
-
+/* find the length of the key which encrypt the cyphered text  */
 int find_key_length(char* cyphered_text, int text_length) {
 	float average_table[10];
 	float average_IC;
@@ -175,7 +175,6 @@ int find_key_length(char* cyphered_text, int text_length) {
 			subset_array[r][c] = cyphered_text[i];
 		}
 
-		//print_subsets(subset_array, rows, columns);
 		//calculate IC for each subset
 		float* ics = ics_alloc(key_length);
 
@@ -202,21 +201,23 @@ int find_key_length(char* cyphered_text, int text_length) {
 		final_length = max_array(average_table, 10)+1;
 	return final_length;
 }
-
+/* print the 256 possibile key values given an offset table */
 void print_possible_keys(char* offset_table, int keylen)
 {
 	char key_char;
+	/* we shift 256 times each character of the key */
 	for(int i = 0; i < 255; i++)
 	{
 		for(int j = 0; j < keylen -1; j++)
 		{
+			/*get the char of the key which encrypts the subset */
 			key_char = (offset_table[j] + i) % 256;
 			printf("%c", key_char);
 		}
 		printf("\n");
 	}	    
 }
-
+/*   */
 char* build_offset_table(int keylen, int textlen, char** subset_table)
 {
 	int offset;
@@ -249,18 +250,6 @@ char **build_sub_array(int key_length, int text_length, char* ciphered_text) {
 	return subset_array;
 }
 
-char* recompose_string(char **sub_array, int text_length, int key_length) {
-	char* res = calloc(text_length+1, sizeof(char));
-	int r;
-	int c;
-	for(int i = 0; i < text_length ; i++) {
-		r = i % key_length;
-		c = i / key_length;
-		res[i] = sub_array[r][c];
-	}
-	return res;
-}
-
 int main(int argc, char* argv[]) {
 	//opening file from argument
 	char* path = argv[0];
@@ -269,7 +258,6 @@ int main(int argc, char* argv[]) {
 	if(fd == NULL)
 		err(EXIT_FAILURE, "fopen:");
 	char c;
-
 
 	//calculating string size since we cannot rely on strlen due to \0
 	int ind = 0;
@@ -281,7 +269,6 @@ int main(int argc, char* argv[]) {
 	char* str = malloc(ind*sizeof(char));
 	if(str==NULL)
 		errx(EXIT_FAILURE, "malloc error");
-
 
 	//Initializing ciphertext
 	rewind(fd);
@@ -299,7 +286,7 @@ int main(int argc, char* argv[]) {
 	//building the substrings array
 	char** sub_array = build_sub_array(keylen, textlen, str);
 
-	//building the table of offsets
+	//  building the table of offsets
 	char* offtable = build_offset_table(keylen, textlen, sub_array);
 
 	print_possible_keys(offtable, keylen);

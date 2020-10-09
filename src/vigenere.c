@@ -47,8 +47,6 @@ int vigenere_encrypt(char *infile, char *outfile, char key[], int c_or_d)
 
 int main(int argc, char* argv[])
 {
-    char* string_test = "coucou";
-
     if(*argv[1] == 'c')
     {
 	vigenere_encrypt(argv[2],argv[3],argv[4], 0);
